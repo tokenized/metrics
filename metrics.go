@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/tokenized/pkg/logger"
-	"go.uber.org/zap"
 )
 
 func init() {
@@ -15,7 +14,7 @@ func init() {
 
 var (
 	// metricType is a field written into every elapsed time metrics message.
-	metricType = zap.String("type", "metric_elapsed")
+	metricType = logger.String("type", "metric_elapsed")
 
 	metricsEnabled = true
 )
@@ -35,8 +34,12 @@ func Elapsed(ctx context.Context, start time.Time, name string) {
 		return
 	}
 
-	// get elapsed time in milliseconds
-	f := float64(time.Since(start).Nanoseconds()) / float64(time.Millisecond)
+	// nanoseconds(billion) 1e9, milliseconds(thousand) 1e3, so divide nanoseconds by 1e6 for
+	// milliseconds.
+	elapsed := float64(time.Since(start).Nanoseconds()) / 1e6
 
-	logger.GetLogger(ctx).Info(name, metricType, zap.Float64(fieldElapsed, f))
+	logger.InfoWithFields(ctx, []logger.Field{
+		metricType,
+		logger.Formatter(fieldElapsed, "%06f", elapsed), // use %06f so it is fixed width
+	}, name)
 }
