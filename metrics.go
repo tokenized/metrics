@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/tokenized/pkg/logger"
+	"github.com/tokenized/logger"
 )
 
 func init() {
@@ -42,4 +42,12 @@ func Elapsed(ctx context.Context, start time.Time, name string) {
 		metricType,
 		logger.Formatter(fieldElapsed, "%06f", elapsed), // use %06f so it is fixed width
 	}, name)
+}
+
+func Disable() {
+	metricsEnabled = false
+}
+
+func Enable() {
+	metricsEnabled = true
 }
